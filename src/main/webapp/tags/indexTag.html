@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Менеджер тэгов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .tags-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .tag-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .tag-name {
+            flex: 0 0 200px;
+            font-weight: bold;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-align: center;
+            height: 20px;
+            line-height: 20px;
+            text-shadow:
+                    -1px -1px 0 #000,
+                    1px -1px 0 #000,
+                    -1px 1px 0 #000,
+                    1px 1px 0 #000;
+        }
+        .tag-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .edit-button, .delete-button {
+            padding: 5px 10px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: 80px;
+            height: 30px;
+        }
+        .edit-button {
+            background-color: #4CAF50;
+        }
+        .delete-button {
+            background-color: #f44336;
+        }
+        .edit-button:hover {
+            background-color: #45a049;
+        }
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+        .create-tag-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .create-tag-button:hover {
+            background-color: #007399;
+        }
+        .navigation-bar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .navigation-bar button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .navigation-bar button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav class="navigation-bar">
+    <button onclick="goToHomePage()">Перейти на главную</button>
+<!--    <button onclick="goToTaskPage()">Перейти на страницу пользователя</button>-->
+</nav>
+<div class="tags-container">
+    <h2>Менеджер тэгов</h2>
+    <div id="tags-list">
+        <!-- Тэги будут добавлены здесь -->
+    </div>
+    <button onclick="location.href='createtag.html'" class="create-tag-button">Создать тэг</button>
+</div>
+
+<script>
+    function loadTags() {
+        fetch('/api/tags')
+            .then(response => response.json())
+            .then(tags => {
+                const tagsList = document.getElementById('tags-list');
+                tagsList.innerHTML = '';
+                tags.forEach(tag => {
+                    const tagItem = document.createElement('div');
+                    tagItem.className = 'tag-item';
+                    tagItem.innerHTML = `
+                            <span class="tag-name" style="background-color: ${tag.color}">${tag.name}</span>
+                            <div class="tag-actions">
+                                <button onclick="location.href='edittag.html?id=${tag.id}'" class="edit-button">Изменить</button>
+                                <button onclick="deleteTag(${tag.id})" class="delete-button">Удалить</button>
+                            </div>
+                        `;
+                    tagsList.appendChild(tagItem);
+                });
+            })
+            .catch(error => console.error('Error loading tags:', error));
+    }
+
+    function deleteTag(id) {
+        if (confirm('Вы уверены, что хотите удалить этот тэг?')) {
+            fetch(`/api/tags/${id}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    alert('Тэг успешно удален');
+                    loadTags(); // Перезагрузка списка тегов
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при удалении тэга');
+                });
+        }
+    }
+
+    function goToHomePage() {
+        window.location.href = '/index.html';
+    }
+
+    // function goToTaskPage() {
+    //     const urlParams = new URLSearchParams(window.location.search);
+    //     const clientLogin = urlParams.get('login');
+    //     if (clientLogin) {
+    //         window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
+    //     } else {
+    //         alert('Логин пользователя не найден. Пожалуйста, войдите в систему.');
+    //         window.location.href = '/index.html';
+    //     }
+    // }
+
+    window.onload = loadTags;
+</script>
+</body>
+</html>

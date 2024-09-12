@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список клиентов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        #clientList {
+            list-style-type: none;
+            padding: 0;
+        }
+        .client-item {
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .client-info {
+            flex-grow: 1;
+        }
+        .view-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .create-client-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>Список клиентов</h1>
+<ul id="clientList">
+    <!-- Список клиентов будет добавлен здесь -->
+</ul>
+
+<a href="/clients/createclient.html" class="create-client-button">Создать нового клиента</a>
+
+<script>
+    function loadClients() {
+        fetch('/api/client')
+            .then(response => response.json())
+            .then(clients => {
+                console.log('Полученные клиенты:', clients);
+                const clientList = document.getElementById('clientList');
+                clientList.innerHTML = '';
+                clients.forEach(client => {
+                    console.log('Обработка клиента:', client); // Добавьте эту строку для отладки
+                    const listItem = document.createElement('li');
+                    listItem.className = 'client-item';
+                    // Используйте client.login вместо client.id, если id отсутствует
+                    const clientIdentifier = client.id || client.login;
+                    const url = `/clients/ClientBoard.html?id=${clientIdentifier}`;
+                    console.log('Сформированный URL:', url);
+                    listItem.innerHTML = `
+                    <div class="client-info">
+                        <strong>${client.firstName} ${client.lastName}</strong>
+                        <br>
+                        Email: ${client.email}
+                    </div>
+                    <a href="${url}" class="view-button">Просмотр</a>
+                `;
+                    clientList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Вызов функции при загрузке страницы
+    window.onload = loadClients;
+</script>
+</body>
+</html>

@@ -42,3 +42,4 @@ target/
 *.iml
 .idea/
 .coveragereport/
+*.properties

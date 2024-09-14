@@ -107,7 +107,7 @@
 <body>
 <nav class="navigation-bar">
     <button onclick="goToHomePage()">Перейти на главную</button>
-<!--    <button onclick="goToTaskPage()">Перейти на страницу пользователя</button>-->
+    <button onclick="goBack()">Назад</button>
 </nav>
 <div class="tags-container">
     <h2>Менеджер тэгов</h2>
@@ -166,16 +166,9 @@
         window.location.href = '/index.html';
     }
 
-    // function goToTaskPage() {
-    //     const urlParams = new URLSearchParams(window.location.search);
-    //     const clientLogin = urlParams.get('login');
-    //     if (clientLogin) {
-    //         window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
-    //     } else {
-    //         alert('Логин пользователя не найден. Пожалуйста, войдите в систему.');
-    //         window.location.href = '/index.html';
-    //     }
-    // }
+    function goBack() {
+        window.history.back();
+    }
 
     window.onload = loadTags;
 </script>

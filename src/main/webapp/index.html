@@ -71,25 +71,58 @@
         fetch('/api/client')
             .then(response => response.json())
             .then(clients => {
-                console.log('Полученные клиенты:', clients);
                 const clientList = document.getElementById('clientList');
                 clientList.innerHTML = '';
                 clients.forEach(client => {
-                    console.log('Обработка клиента:', client); // Добавьте эту строку для отладки
                     const listItem = document.createElement('li');
                     listItem.className = 'client-item';
-                    // Используйте client.login вместо client.id, если id отсутствует
-                    const clientIdentifier = client.id || client.login;
-                    const url = `/clients/ClientBoard.html?id=${clientIdentifier}`;
-                    console.log('Сформированный URL:', url);
                     listItem.innerHTML = `
                     <div class="client-info">
                         <strong>${client.firstName} ${client.lastName}</strong>
                         <br>
                         Email: ${client.email}
                     </div>
-                    <a href="${url}" class="view-button">Просмотр</a>
+                    <div class="login-form">
+                        <input type="text" placeholder="Логин" class="login-input">
+                        <input type="password" placeholder="Пароль" class="password-input">
+                        <button class="login-button">Войти</button>
+                    </div>
+                    <a href="/clients/ClientBoard.html?login=${client.login}" class="view-button" style="pointer-events: none; opacity: 0.5;">Просмотр</a>
                 `;
+
+                    const loginButton = listItem.querySelector('.login-button');
+                    const viewButton = listItem.querySelector('.view-button');
+                    const loginInput = listItem.querySelector('.login-input');
+                    const passwordInput = listItem.querySelector('.password-input');
+
+                    loginButton.addEventListener('click', () => {
+                        const login = loginInput.value;
+                        const password = passwordInput.value;
+
+                        // Здесь нужно сделать запрос к серверу для проверки логина и пароля
+                        fetch('/api/client/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ login, password })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    viewButton.style.pointerEvents = 'auto';
+                                    viewButton.style.opacity = '1';
+                                    loginButton.textContent = 'Выйти';
+                                } else {
+                                    alert('Неверный логин или пароль');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Произошла ошибка при входе');
+                            });
+                    });
+
                     clientList.appendChild(listItem);
                 });
             })

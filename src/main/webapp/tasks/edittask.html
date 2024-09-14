@@ -60,6 +60,7 @@
 <body>
 <nav class="navigation-bar">
     <button onclick="goToHomePage()">Перейти на главную</button>
+    <button onclick="goToClientPage()">Перейти на страницу клиента</button>
 </nav>
 <h1>Изменение задачи</h1>
 <form id="editTaskForm">
@@ -158,6 +159,17 @@
 
     function goToHomePage() {
         window.location.href = '/index.html';
+    }
+
+    function goToClientPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientLogin = urlParams.get('login');
+        if (clientLogin) {
+            window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
+        } else {
+            alert('Логин клиента не найден. Пожалуйста, вернитесь на главную страницу.');
+            window.location.href = '/index.html';
+        }
     }
 
     window.onload = loadTaskData;

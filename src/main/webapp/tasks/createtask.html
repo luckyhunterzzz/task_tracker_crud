@@ -64,7 +64,7 @@
 <body>
 <nav class="navigation-bar">
   <button onclick="goToHomePage()">Перейти на главную</button>
-  <!--    <button onclick="goToTaskPage()">Перейти на страницу пользователя</button>-->
+  <button onclick="goToClientPage()">Перейти на страницу клиента</button>
 </nav>
 <form id="createTaskForm">
   <h2>Создание новой задачи</h2>
@@ -116,6 +116,14 @@
   });
   function goToHomePage() {
     window.location.href = '/index.html';
+  }
+  function goToClientPage() {
+    if (clientLogin) {
+      window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
+    } else {
+      alert('Логин клиента не найден. Пожалуйста, вернитесь на главную страницу.');
+      window.location.href = '/index.html';
+    }
   }
 </script>
 </body>

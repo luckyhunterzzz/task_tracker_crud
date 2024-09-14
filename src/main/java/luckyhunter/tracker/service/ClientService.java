@@ -3,6 +3,8 @@ package luckyhunter.tracker.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import luckyhunter.tracker.mapper.ClientMapper;
 import luckyhunter.tracker.model.dto.ClientDto;
 import luckyhunter.tracker.model.dto.ClientToCreateDto;
@@ -12,8 +14,10 @@ import luckyhunter.tracker.validator.ClientValidator;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClientService {
 
@@ -127,5 +131,28 @@ public class ClientService {
         clientValidator.validatePassword(password);
 
         return clientValidator;
+    }
+
+    public boolean validateCredentials(String login, String password) {
+        try (Session session = sessionFactory.openSession()) {
+            Client client = clientRepository.getClientByLogin(session, login);
+            if (client != null) {
+                return client.getPassword().equals(password);
+            }
+            return false;
+        }
+    }
+
+    public void handleLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(requestBody);
+        String login = jsonNode.get("login").asText();
+        String password = jsonNode.get("password").asText();
+
+        boolean isValid = validateCredentials(login, password);
+
+        resp.setContentType("application/json");
+        resp.getWriter().write(objectMapper.writeValueAsString(Collections.singletonMap("success", isValid)));
     }
 }

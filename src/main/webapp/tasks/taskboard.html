@@ -11,24 +11,26 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
+
         .task-info, .comments-section {
             background-color: white;
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .task-info {
             position: relative;
             padding-bottom: 80px; /* Добавляем отступ снизу для кнопок */
         }
+
         .task-tag {
             color: white;
-            text-shadow:
-                    -1px -1px 0 #000,
-                    1px -1px 0 #000,
-                    -1px 1px 0 #000,
-                    1px 1px 0 #000;
+            text-shadow: -1px -1px 0 #000,
+            1px -1px 0 #000,
+            -1px 1px 0 #000,
+            1px 1px 0 #000;
             padding: 2px 5px;
             border-radius: 3px;
             margin-right: 5px;
@@ -37,23 +39,29 @@
             position: relative; /* Добавляем это */
             padding-right: 20px; /* Добавляем отступ справа для крестика */
         }
+
         .comment {
             border-bottom: 1px solid #eee;
             padding: 10px 0;
         }
+
         .comment:last-child {
             border-bottom: none;
         }
+
         select {
             padding: 5px;
             font-size: 16px;
         }
+
         .tag-selector {
             margin-top: 10px;
         }
+
         .tag-selector select {
             margin-left: 10px;
         }
+
         .add-tag-button {
             margin-left: 10px;
             padding: 5px 10px;
@@ -63,9 +71,11 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         .add-tag-button:hover {
             background-color: #45a049;
         }
+
         .remove-tag {
             position: absolute;
             top: 0;
@@ -74,9 +84,11 @@
             cursor: pointer;
             font-size: 12px;
         }
+
         .remove-tag:hover {
             color: darkred;
         }
+
         .button-container {
             display: flex;
             justify-content: space-between;
@@ -87,11 +99,13 @@
             right: 20px;
             width: calc(100% - 40px); /* Учитываем отступы слева и справа */
         }
+
         .main-buttons {
             display: flex;
             justify-content: flex-end;
             flex: 1;
         }
+
         .edit-button, .delete-button {
             padding: 10px 20px;
             color: white;
@@ -102,19 +116,24 @@
             transition: background-color 0.3s;
             width: 200px; /* Фиксированная ширина */
         }
+
         .edit-button {
             background-color: #4CAF50;
             margin-right: 10px;
         }
+
         .delete-button {
             background-color: #f44336;
         }
+
         .edit-button:hover {
             background-color: #45a049;
         }
+
         .delete-button:hover {
             background-color: #d32f2f;
         }
+
         .tag-manager-button {
             padding: 5px 10px;
             color: white;
@@ -126,15 +145,18 @@
             transition: background-color 0.3s;
             width: 100px; /* Ширина в два раза меньше других кнопок */
         }
+
         .tag-manager-button:hover {
             background-color: #2980b9;
         }
+
         .comments-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
+
         .add-comment-button {
             padding: 5px 10px;
             background-color: #4CAF50;
@@ -143,10 +165,12 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         .comment-form {
             display: none;
             margin-bottom: 20px;
         }
+
         .comment-form input,
         .comment-form textarea {
             width: 100%;
@@ -155,9 +179,11 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         .comment-form textarea {
             height: 100px;
         }
+
         .comment-form button {
             padding: 8px 15px;
             background-color: #4CAF50;
@@ -166,15 +192,18 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         .comment-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .comment-actions {
             display: flex;
             gap: 10px;
         }
+
         .edit-comment-btn {
             background-color: #3498db;
             color: white;
@@ -182,6 +211,7 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
         .delete-comment-btn {
             background-color: #e74c3c;
             color: white;
@@ -189,14 +219,17 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
         .edit-comment-form {
             margin-top: 10px;
         }
+
         .edit-comment-form input,
         .edit-comment-form textarea {
             width: 100%;
             margin-bottom: 10px;
         }
+
         .delete-comment-btn {
             background-color: #e74c3c;
             color: white;
@@ -208,6 +241,7 @@
         .delete-comment-btn:hover {
             background-color: #c0392b;
         }
+
         .navigation-bar {
             background-color: #f8f9fa;
             padding: 10px;
@@ -232,7 +266,7 @@
 <body>
 <nav class="navigation-bar">
     <button onclick="goToHomePage()">Перейти на главную</button>
-    <!--    <button onclick="goToTaskPage()">Перейти на страницу пользователя</button>-->
+    <button onclick="goToClientPage()">Перейти на страницу пользователя</button>
 </nav>
 <div id="taskInfo" class="task-info">
     <!-- Информация о задаче будет добавлена здесь -->
@@ -256,7 +290,7 @@
     let currentTask; // Глобальная переменная для хранения текущей задачи
     let clientLogin;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
         clientLogin = urlParams.get('login');
         console.log('Инициализация clientLogin:', clientLogin);
@@ -396,7 +430,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ tagId: parseInt(selectedTagId) }),
+            body: JSON.stringify({tagId: parseInt(selectedTagId)}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -422,7 +456,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ status: newStatus }),
+            body: JSON.stringify({status: newStatus}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -465,6 +499,7 @@
             .then(updatedTask => {
                 alert('Тег успешно удален');
                 displayTaskInfo(updatedTask); // Обновляем информацию о задаче на странице
+                loadAvailableTags();
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -531,7 +566,9 @@
         })
             .then(response => {
                 if (!response.ok) {
-                    return response.json().then(err => { throw err; });
+                    return response.json().then(err => {
+                        throw err;
+                    });
                 }
                 return response.json();
             })
@@ -611,7 +648,9 @@
         })
             .then(response => {
                 if (!response.ok) {
-                    return response.json().then(err => { throw err; });
+                    return response.json().then(err => {
+                        throw err;
+                    });
                 }
                 return response.json();
             })
@@ -653,6 +692,17 @@
 
     function goToHomePage() {
         window.location.href = '/index.html';
+    }
+
+    function goToClientPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientLogin = urlParams.get('login');
+        if (clientLogin) {
+            window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
+        } else {
+            alert('Логин клиента не найден. Пожалуйста, вернитесь на главную страницу.');
+            window.location.href = '/index.html';
+        }
     }
 
     window.onload = loadTaskData;

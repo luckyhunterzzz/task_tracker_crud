@@ -51,20 +51,25 @@ public class ClientServlet extends HttpServlet implements Servlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            ClientValidator clientValidator = clientService.parseToClientChangeDto(requestBody);
-
-            if (clientValidator.getErrors().isEmpty()) {
-                ClientToCreateDto clientToCreate = clientValidator.getClientToCreateDto();
-                clientService.createClient(clientToCreate);
-
-                resp.setContentType("application/json");
-                resp.setCharacterEncoding("UTF-8");
-                resp.setStatus(HttpServletResponse.SC_CREATED);
-                resp.getWriter().write(objectMapper.writeValueAsString(Collections.singletonMap("message", "Клиент успешно создан")));
+            String pathInfo = req.getPathInfo();
+            if ("/login".equals(pathInfo)) {
+                clientService.handleLogin(req, resp);
             } else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write(objectMapper.writeValueAsString(Collections.singletonMap("error", clientValidator.getErrors())));
+                String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+                ClientValidator clientValidator = clientService.parseToClientChangeDto(requestBody);
+
+                if (clientValidator.getErrors().isEmpty()) {
+                    ClientToCreateDto clientToCreate = clientValidator.getClientToCreateDto();
+                    clientService.createClient(clientToCreate);
+
+                    resp.setContentType("application/json");
+                    resp.setCharacterEncoding("UTF-8");
+                    resp.setStatus(HttpServletResponse.SC_CREATED);
+                    resp.getWriter().write(objectMapper.writeValueAsString(Collections.singletonMap("message", "Клиент успешно создан")));
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    resp.getWriter().write(objectMapper.writeValueAsString(Collections.singletonMap("error", clientValidator.getErrors())));
+                }
             }
         } catch (Exception e) {
             resp.setContentType("application/json");

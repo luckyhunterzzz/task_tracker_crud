@@ -105,7 +105,7 @@
             document.getElementById('email').value = client.email;
             document.getElementById('phoneNumber').value = client.phoneNumber;
             document.getElementById('birthDate').value = client.birthDate;
-            document.getElementById('password').value = client.password;
+            document.getElementById('password').value = '';
         })
         .catch(error => console.error('Error:', error));
 
@@ -116,10 +116,9 @@
 
         clientData.login = clientLogin;
 
-        // Удаляем пустой пароль из данных, если он не был изменен
-        if (!clientData.password) {
-            delete clientData.password;
-        }
+        // if (!clientData.password || clientData.password.trim() === '') {
+        //     delete clientData.password;
+        // }
 
         fetch(`/api/client/${clientLogin}`, {
             method: 'PUT',

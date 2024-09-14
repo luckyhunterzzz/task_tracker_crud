@@ -90,8 +90,8 @@ public class ClientValidator {
         }
     }
     public void validatePassword(String password) {
-        if (password == null) {
-            errors.add("Password can not be NULL");
+        if (password == null || password.isEmpty()) {
+            errors.add("Password can not be null or empty");
         } else if (password.length() > 20) {
             errors.add("Password can not be more than 20 characters");
         } else if (!LOGIN_PATTERN.matcher(password).matches()){

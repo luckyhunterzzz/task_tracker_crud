@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db:
+    image: luckyhunterzzz/task_tracker:16
+    container_name: mypostgres
+    environment:
+      POSTGRES_DB: mypostgres
+      POSTGRES_USER: luckyhunter
+      POSTGRES_PASSWORD: luckyhunter
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

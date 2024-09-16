@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель клиента</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .client-info {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .task-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .column + .column {
+            margin-left: 20px;
+        }
+        .column-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+        .not-started .column-title { color: #888; border-color: #888; }
+        .in-progress .column-title { color: #0066cc; border-color: #0066cc; }
+        .done .column-title { color: #4CAF50; border-color: #4CAF50; }
+        .task {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .task-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .task-comment {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .task-tag {
+            color: white;
+            text-shadow:
+                    -1px -1px 0 #000,
+                    1px -1px 0 #000,
+                    -1px 1px 0 #000,
+                    1px 1px 0 #000;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-right: 5px;
+            display: inline-block;
+            font-size: 0.8em; /* Уменьшаем размер шрифта */
+            /*font-weight: bold; !* Делаем шрифт жирным для лучшей читаемости *!*/
+        }
+        .edit-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .delete-button {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .create-task-button {
+            background-color: #008CBA;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .navigation-bar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .navigation-bar button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .navigation-bar button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav class="navigation-bar">
+    <button onclick="goToHomePage()">Перейти на главную</button>
+</nav>
+<div class="client-info" id="clientInfo">
+    <!-- Информация о клиенте будет добавлена здесь -->
+</div>
+
+<a href="#" id="createTaskButton" class="create-task-button">Создать новую задачу</a>
+
+<div class="task-columns">
+    <div class="column not-started">
+        <div class="column-title">Not started</div>
+        <div id="notStartedTasks"></div>
+    </div>
+    <div class="column in-progress">
+        <div class="column-title">In progress</div>
+        <div id="inProgressTasks"></div>
+    </div>
+    <div class="column done">
+        <div class="column-title">Done</div>
+        <div id="doneTasks"></div>
+    </div>
+</div>
+
+<script>
+    let clientLogin;
+
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    function loadClientData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        clientLogin = urlParams.get('id') || urlParams.get('login');
+
+        console.log('Загружаемый логин клиента:', clientLogin);
+
+        if (!clientLogin) {
+            console.error('Логин клиента не указан');
+            document.body.innerHTML = '<h1>Ошибка: Логин клиента не указан</h1>';
+            return;
+        }
+
+        console.log('URL параметры:', urlParams.toString());
+        console.log('Загружаемый логин клиента:', clientLogin);
+
+        if (!clientLogin) {
+            console.error('Логин клиента не указан');
+            document.body.innerHTML = '<h1>Ошибка: Логин клиента не указан</h1>';
+            return;
+        }
+
+        const url = `/api/client/${clientLogin}`;
+        console.log('Отправка запроса на:', url);
+
+        fetch(url)
+            .then(response => {
+                console.log('Статус ответа:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Полученные данные клиента:', data);
+                displayClientInfo(data);
+                displayTasks(data.tasks);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.body.innerHTML = `<h1>Ошибка при загрузке данных клиента: ${error.message}</h1>`;
+            });
+    }
+
+    function displayClientInfo(client) {
+        const clientInfo = document.getElementById('clientInfo');
+        clientInfo.innerHTML = `
+        <h2>Информация о клиенте</h2>
+        <p>Имя: ${client.firstName} ${client.lastName}</p>
+        <p>Email: ${client.email}</p>
+        <p>Телефон: ${client.phoneNumber}</p>
+        <a href="/clients/editclient.html?login=${client.login}" class="edit-button">Изменить данные</a>
+        <button onclick="deleteClient('${client.login}')" class="delete-button">Удалить</button>
+    `;
+
+        // Обновляем ссылку на создание новой задачи
+        document.getElementById('createTaskButton').href = `/tasks/createtask.html?login=${client.login}`;
+    }
+
+    function deleteClient(login) {
+        if (confirm('Вы уверены, что хотите удалить этого клиента?')) {
+            fetch(`/api/client/${login}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при удалении клиента');
+                    }
+                    alert('Клиент успешно удален');
+                    window.location.href = '/index.html'; // Перенаправление на стартовую страницу
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при удалении клиента');
+                });
+        }
+    }
+
+    function displayTasks(tasks) {
+        console.log('Задачи:', tasks);
+
+        const columns = {
+            'Not started': document.getElementById('notStartedTasks'),
+            'In progress': document.getElementById('inProgressTasks'),
+            'Done': document.getElementById('doneTasks')
+        };
+
+        for (const status in columns) {
+            columns[status].innerHTML = '';
+        }
+
+        tasks.forEach(task => {
+            console.log('Обработка задачи:', task);
+            const taskElement = document.createElement('div');
+            taskElement.className = 'task';
+            taskElement.style.cursor = 'pointer';
+            taskElement.onclick = () => {
+                if (task.id) {
+                    window.location.href = `/tasks/taskboard.html?id=${task.id}&login=${clientLogin}`;
+                } else {
+                    console.error('У задачи отсутствует id:', task);
+                }
+            };
+
+            let commentsHtml = '';
+            if (task.comments && task.comments.length > 0) {
+                console.log('Комментарии к задаче:', task.comments);
+                commentsHtml = task.comments.map(comment => {
+                    console.log('Обработка комментария:', comment);
+                    if (comment && comment.title && comment.description) {
+                        return `
+                        <div class="task-comment">
+                            <strong>${comment.title}</strong>: ${comment.description}
+                        </div>
+                    `;
+                    } else {
+                        console.log('Некорректный комментарий:', comment);
+                        return `<div class="task-comment">Некорректный комментарий</div>`;
+                    }
+                }).join('');
+            } else {
+                console.log('У задачи нет комментариев');
+            }
+
+            taskElement.innerHTML = `
+            <div class="task-title">${task.title}</div>
+            ${commentsHtml}
+            ${task.tags && task.tags.length > 0
+                ? task.tags.map(tag =>
+                    `<span class="task-tag" style="background-color: ${tag.color || '#ccc'}">${tag.name || 'Без названия'}</span>`
+                ).join(' ')
+                : ''}
+        `;
+            columns[task.status].appendChild(taskElement);
+        });
+    }
+
+    function goToHomePage() {
+        window.location.href = '/index.html';
+    }
+
+    window.onload = loadClientData;
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование данных клиента</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .navigation-bar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .navigation-bar button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .navigation-bar button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav class="navigation-bar">
+    <button onclick="goToHomePage()">Перейти на главную</button>
+    <button onclick="goToUserPage()">Перейти на страницу пользователя</button>
+</nav>
+<form id="editClientForm">
+    <h2>Редактирование данных клиента</h2>
+    <input type="text" id="login" name="login" placeholder="Логин" readonly disabled>
+    <input type="text" id="firstName" name="firstName" placeholder="Имя" required>
+    <input type="text" id="lastName" name="lastName" placeholder="Фамилия" required>
+    <input type="email" id="email" name="email" placeholder="Email" required>
+    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Телефон">
+    <input type="date" id="birthDate" name="birthDate">
+    <input type="password" id="password" name="password" placeholder="Новый пароль">
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientLogin = urlParams.get('login');
+
+    function goToHomePage() {
+        window.location.href = '/index.html';
+    }
+    function goToUserPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientLogin = urlParams.get('login');
+        if (clientLogin) {
+            window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
+        } else {
+            alert('Логин пользователя не найден. Пожалуйста, войдите в систему.');
+            window.location.href = '/index.html';
+        }
+    }
+    // Загрузка текущих данных клиента
+    fetch(`/api/client/${clientLogin}`)
+        .then(response => response.json())
+        .then(client => {
+            document.getElementById('login').value = client.login;
+            document.getElementById('firstName').value = client.firstName;
+            document.getElementById('lastName').value = client.lastName;
+            document.getElementById('email').value = client.email;
+            document.getElementById('phoneNumber').value = client.phoneNumber;
+            document.getElementById('birthDate').value = client.birthDate;
+            document.getElementById('password').value = '';
+        })
+        .catch(error => console.error('Error:', error));
+
+    document.getElementById('editClientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const clientData = Object.fromEntries(formData.entries());
+
+        clientData.login = clientLogin;
+
+        // if (!clientData.password || clientData.password.trim() === '') {
+        //     delete clientData.password;
+        // }
+
+        fetch(`/api/client/${clientLogin}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(clientData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Ошибка: ' + data.error);
+                } else {
+                    alert('Данные клиента успешно обновлены!');
+                    window.location.href = `/clients/ClientBoard.html?id=${clientLogin}`;
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обновлении данных клиента');
+            });
+    });
+</script>
+</body>
+</html>

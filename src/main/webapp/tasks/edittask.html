@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Изменение задачи</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="datetime-local"], textarea, select {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .navigation-bar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .navigation-bar button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .navigation-bar button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav class="navigation-bar">
+    <button onclick="goToHomePage()">Перейти на главную</button>
+    <button onclick="goToClientPage()">Перейти на страницу клиента</button>
+</nav>
+<h1>Изменение задачи</h1>
+<form id="editTaskForm">
+    <label for="title">Название:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="description">Описание:</label>
+    <textarea id="description" name="description" rows="4" required></textarea>
+
+    <label for="plannedStart">Время начала:</label>
+    <input type="datetime-local" id="plannedStart" name="plannedStart" required>
+
+    <label for="plannedEnd">Время окончания:</label>
+    <input type="datetime-local" id="plannedEnd" name="plannedEnd" required>
+
+    <label for="status">Статус:</label>
+    <select id="status" name="status" required>
+        <option value="Not started">Не начато</option>
+        <option value="In progress">В процессе</option>
+        <option value="Done">Завершено</option>
+    </select>
+
+    <button type="submit">Отправить</button>
+</form>
+
+<script>
+    let clientLogin;
+
+    function loadTaskData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get('id');
+        clientLogin = urlParams.get('login');
+
+        if (!taskId) {
+            console.error('ID задачи не указан');
+            document.body.innerHTML = '<h1>Ошибка: ID задачи не указан</h1>';
+            return;
+        }
+
+        fetch(`/api/tasks/${taskId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(task => {
+                document.getElementById('title').value = task.title;
+                document.getElementById('description').value = task.description;
+                document.getElementById('plannedStart').value = task.plannedStart.slice(0, 16);
+                document.getElementById('plannedEnd').value = task.plannedEnd.slice(0, 16);
+                document.getElementById('status').value = task.status;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.body.innerHTML = `<h1>Ошибка при загрузке данных задачи: ${error.message}</h1>`;
+            });
+    }
+
+    function updateTask(event) {
+        event.preventDefault();
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get('id');
+        const clientLogin = urlParams.get('login');
+
+        const formData = new FormData(event.target);
+        const updatedTask = Object.fromEntries(formData.entries());
+
+        fetch(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedTask),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Failed to update task: ${text}`);
+                    });
+                }
+                if (response.status === 204 || response.headers.get("content-length") === "0") {
+                    return null; // Нет содержимого
+                }
+                return response.text().then(text => text ? JSON.parse(text) : null);
+            })
+            .then(result => {
+                alert('Задача успешно обновлена');
+                window.location.href = `/tasks/taskboard.html?id=${taskId}&login=${clientLogin}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Произошла ошибка при обновлении задачи: ${error.message}`);
+            });
+    }
+
+    function goToHomePage() {
+        window.location.href = '/index.html';
+    }
+
+    function goToClientPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientLogin = urlParams.get('login');
+        if (clientLogin) {
+            window.location.href = `/clients/ClientBoard.html?login=${clientLogin}`;
+        } else {
+            alert('Логин клиента не найден. Пожалуйста, вернитесь на главную страницу.');
+            window.location.href = '/index.html';
+        }
+    }
+
+    window.onload = loadTaskData;
+    document.getElementById('editTaskForm').addEventListener('submit', updateTask);
+</script>
+</body>
+</html>

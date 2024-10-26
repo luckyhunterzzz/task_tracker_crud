@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование тэга</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="color"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="color"] {
+            height: 40px;
+        }
+        .save-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .save-button:hover {
+            background-color: #45a049;
+        }
+        .navigation-bar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .navigation-bar button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .navigation-bar button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav class="navigation-bar">
+    <button onclick="goToHomePage()">Перейти на главную</button>
+    <button onclick="goBack()">Назад</button>
+</nav>
+<div class="form-container">
+    <h2>Редактирование тэга</h2>
+    <form id="editTagForm">
+        <div class="form-group">
+            <label for="tagName">Название тэга:</label>
+            <input type="text" id="tagName" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="tagColor">Цвет тэга:</label>
+            <input type="color" id="tagColor" name="color" required>
+        </div>
+        <button type="submit" class="save-button">Сохранить</button>
+    </form>
+</div>
+
+<script>
+    const tagId = new URLSearchParams(window.location.search).get('id');
+
+    document.getElementById('editTagForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const tagName = document.getElementById('tagName').value;
+        const tagColor = document.getElementById('tagColor').value;
+
+        const tagData = {
+            id: parseInt(tagId), // Преобразуйте в число
+            name: tagName,
+            color: tagColor
+        };
+
+        fetch(`/api/tags/${tagId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(tagData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Failed to update tag: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Тэг успешно обновлен!');
+                window.location.href = 'indexTag.html';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Произошла ошибка при обновлении тэга: ${error.message}`);
+            });
+    });
+    function goToHomePage() {
+        window.location.href = '/index.html';
+    }
+    function goBack() {
+        window.history.back();
+    }
+</script>
+</body>
+</html>

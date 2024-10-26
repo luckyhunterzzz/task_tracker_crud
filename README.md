@@ -24,7 +24,7 @@ Java JDK 11 или выше
 
 - cd task_tracker_crud
 
-3. ** Запустите приложение через Docker Compose:**
+3. **Запустите приложение через Docker Compose:**
 
 - docker-compose up -d
 
